@@ -3,14 +3,16 @@ Factory Process Monitoring Agent - Main Application
 Flask server with real-time WebSocket updates
 """
 
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, send_file
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import threading
 import time
+from datetime import datetime
 from production_monitor import ProductionMonitor
 from quality_control import QualityControl
 from anomaly_detector import AnomalyDetector
+from report_generator import ReportGenerator
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'factory-monitoring-secret-key'
@@ -21,6 +23,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 production_monitor = ProductionMonitor()
 quality_control = QualityControl()
 anomaly_detector = AnomalyDetector()
+report_generator = ReportGenerator()
 
 # Background thread for real-time updates
 update_thread = None
@@ -197,6 +200,52 @@ def get_analytics():
     }
     
     return jsonify(analytics)
+
+
+@app.route('/api/export/pdf')
+def export_pdf():
+    """Export production report as PDF"""
+    production_lines = production_monitor.get_production_lines()
+    quality_metrics = quality_control.get_all_quality_metrics(production_monitor.production_lines)
+    overall_metrics = production_monitor.get_overall_metrics()
+    alert_counts = anomaly_detector.get_alert_counts()
+    overall_metrics['critical_alerts'] = alert_counts['critical']
+    overall_metrics['warning_alerts'] = alert_counts['warning']
+    alerts = anomaly_detector.get_active_alerts()
+    
+    pdf_buffer = report_generator.generate_pdf_report(
+        production_lines, quality_metrics, overall_metrics, alerts
+    )
+    
+    return send_file(
+        pdf_buffer,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=f'factory_report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
+    )
+
+
+@app.route('/api/export/excel')
+def export_excel():
+    """Export production report as Excel"""
+    production_lines = production_monitor.get_production_lines()
+    quality_metrics = quality_control.get_all_quality_metrics(production_monitor.production_lines)
+    overall_metrics = production_monitor.get_overall_metrics()
+    alert_counts = anomaly_detector.get_alert_counts()
+    overall_metrics['critical_alerts'] = alert_counts['critical']
+    overall_metrics['warning_alerts'] = alert_counts['warning']
+    alerts = anomaly_detector.get_active_alerts()
+    
+    excel_buffer = report_generator.generate_excel_report(
+        production_lines, quality_metrics, overall_metrics, alerts
+    )
+    
+    return send_file(
+        excel_buffer,
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        as_attachment=True,
+        download_name=f'factory_report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    )
 
 
 @socketio.on('connect')
