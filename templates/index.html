@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factory Process Monitoring Agent</title>
+    <meta name="description" content="Real-time factory production line monitoring and quality control dashboard">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="logo">
+                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                            <rect width="40" height="40" rx="8" fill="url(#gradient1)"/>
+                            <path d="M12 20L18 14L24 20L30 14" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M12 26L18 20L24 26L30 20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                            <defs>
+                                <linearGradient id="gradient1" x1="0" y1="0" x2="40" y2="40">
+                                    <stop offset="0%" stop-color="#667eea"/>
+                                    <stop offset="100%" stop-color="#764ba2"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <div class="header-title">
+                        <h1>Factory Process Monitor</h1>
+                        <p class="subtitle">Real-time Production & Quality Control</p>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="connection-status" id="connectionStatus">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Connecting...</span>
+                    </div>
+                    <div class="last-update" id="lastUpdate">
+                        Last update: --:--:--
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Overall Metrics -->
+        <section class="metrics-overview">
+            <div class="metric-card">
+                <div class="metric-icon production-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <rect x="3" y="3" width="18" height="18" rx="2" stroke-width="2"/>
+                        <path d="M9 3v18M15 3v18M3 9h18M3 15h18" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Total Output</div>
+                    <div class="metric-value" id="totalOutput">0</div>
+                    <div class="metric-change positive">+0 units</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon efficiency-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                        <path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Overall OEE</div>
+                    <div class="metric-value" id="overallOEE">0%</div>
+                    <div class="metric-change" id="oeeChange">--</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon quality-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M9 11l3 3L22 4" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Quality Score</div>
+                    <div class="metric-value" id="qualityScore">0%</div>
+                    <div class="metric-change" id="qualityChange">--</div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-icon alert-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke-width="2"/>
+                        <path d="M12 9v4M12 17h.01" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <div class="metric-content">
+                    <div class="metric-label">Active Alerts</div>
+                    <div class="metric-value" id="activeAlerts">0</div>
+                    <div class="metric-breakdown" id="alertBreakdown">0 critical, 0 warning</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- Production Lines -->
+            <section class="production-lines-section">
+                <div class="section-header">
+                    <h2>Production Lines</h2>
+                    <div class="section-badge" id="activeLinesCount">0/0 Active</div>
+                </div>
+                <div class="production-lines-grid" id="productionLinesGrid">
+                    <!-- Production line cards will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Alerts Panel -->
+            <section class="alerts-section">
+                <div class="section-header">
+                    <h2>Active Alerts</h2>
+                    <div class="alert-filters">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="critical">Critical</button>
+                        <button class="filter-btn" data-filter="warning">Warning</button>
+                    </div>
+                </div>
+                <div class="alerts-container" id="alertsContainer">
+                    <div class="no-alerts">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M9 11l3 3L22 4" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke-width="2"/>
+                        </svg>
+                        <p>All systems operating normally</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Analytics Section -->
+        <section class="analytics-section">
+            <div class="section-header">
+                <h2>Production Analytics</h2>
+            </div>
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>Production by Line</h3>
+                    <canvas id="productionChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Quality Metrics</h3>
+                    <canvas id="qualityChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Efficiency Trends</h3>
+                    <canvas id="efficiencyChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Machine Health Section -->
+        <section class="machine-health-section">
+            <div class="section-header">
+                <h2>Machine Health Status</h2>
+            </div>
+            <div class="health-grid" id="machineHealthGrid">
+                <!-- Machine health cards will be inserted here -->
+            </div>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
