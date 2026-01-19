@@ -7,6 +7,24 @@ A comprehensive real-time manufacturing monitoring system that tracks production
 ![Flask](https://img.shields.io/badge/Flask-3.0-lightgrey)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
+## Screenshots
+
+### Dashboard Overview
+![Dashboard Overview](screenshots/dashboard_overview.png)
+*Real-time production monitoring dashboard with overall metrics, connection status, and active alerts*
+
+### Production Lines Monitoring
+![Production Lines](screenshots/production_lines.png)
+*Live tracking of multiple production lines with speed, efficiency, and output metrics*
+
+### Analytics & Charts
+![Analytics Charts](screenshots/analytics_charts.png)
+*Visual analytics including production by line, quality metrics, and efficiency trends*
+
+### Machine Health Status
+![Machine Health](screenshots/machine_health.png)
+*Machine health monitoring with predictive maintenance recommendations*
+
 ## Features
 
 ### 🏭 Real-Time Production Monitoring
