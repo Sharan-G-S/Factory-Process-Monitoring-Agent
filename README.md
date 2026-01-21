@@ -1,5 +1,6 @@
 # Factory Process Monitoring Agent
 
+# Sharan G S
 A comprehensive real-time manufacturing monitoring system that tracks production lines, ensures quality control, detects anomalies, and provides actionable insights for optimal factory operations.
 
 ![Factory Monitoring](https://img.shields.io/badge/Status-Active-success)
