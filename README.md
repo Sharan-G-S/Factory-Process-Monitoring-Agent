@@ -243,4 +243,4 @@ MIT License - feel free to use this project for your manufacturing operations.
 For issues, questions, or contributions, please Mail to sharangs08@gmail.com
 ---
 
-**Built with ❤️ for modern manufacturing operations**
+# Made with 💚 from Sharan G S
