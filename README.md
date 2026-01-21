@@ -233,15 +233,6 @@ Score ranges:
 - Limit number of production lines
 - Clear browser cache
 
-## Future Enhancements
-
-- [ ] Historical data storage and retrieval
-- [ ] Advanced predictive maintenance algorithms
-- [ ] Multi-factory support
-- [ ] User authentication and role-based access
-- [x] Export reports to PDF/Excel ✅ **COMPLETED**
-- [ ] Mobile responsive design improvements
-- [ ] Integration with real production line sensors
 
 ## License
 
@@ -249,8 +240,7 @@ MIT License - feel free to use this project for your manufacturing operations.
 
 ## Support
 
-For issues, questions, or contributions, please refer to the project documentation or contact the development team.
-
+For issues, questions, or contributions, please Mail to sharangs08@gmail.com
 ---
 
 **Built with ❤️ for modern manufacturing operations**
